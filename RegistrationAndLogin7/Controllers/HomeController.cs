@@ -26,5 +26,10 @@ namespace RegistrationAndLogin7.Controllers
 
             return View();
         }
+        
+        public ActionResult Welcome()
+        {
+            return View();
+        }
     }
 }

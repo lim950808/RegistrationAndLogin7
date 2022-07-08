@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
@@ -64,7 +65,8 @@ namespace RegistrationAndLogin7.Controllers
         {
             using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString))
             {
-                bool isValid = !db.Users.ToList().Exists(p => p.UserId.Equals(UserId, StringComparison.CurrentCultureIgnoreCase));
+                //bool isValid = !db.Users.ToList().Exists(p => p.UserId.Equals(UserId, StringComparison.CurrentCultureIgnoreCase));
+                bool isValid = !db.Query<Account>("SELECT * FROM ACCOUNT WHERE Id = @Id", new {UserId = UserId}).ToList();
                 return Json(isValid);
             }
         }*/
@@ -74,18 +76,38 @@ namespace RegistrationAndLogin7.Controllers
             return View();
         }
 
-        /*public JsonResult CheckLogin(string UserId, string Password)
+        /*[HttpPost]
+        public ActionResult Login(string UserId, string Password)
         {
             using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString))
             {
-                //var dataItem = db.Where(x => x.UserId == UserId && x.Password == Password).SingleOrDefault();
-                //string loginQuery = @"SELECT * FROM [dbo].[Account] WHERE UserID = @UserId AND Password = @Password ";
-                var dataItem = db.QuerySingleOrDefault()
-                bool isLogged = true;
+                string loginQuery = "SELECT * FROM [dbo].[Account] WHERE UserId = @UserID AND Password = @Password";
+                db.QueryFirstOrDefault<Account>(loginQuery, new { UserId = 1 });
+            }
+            return RedirectToAction("Welcome", "Home");
+        }*/
 
+        [HttpPost]
+        public ActionResult Login(Account account)
+        {
+            using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString))
+            {
+                string loginQuery = @"SELECT * FROM [dbo].[Account] WHERE UserId = @UserID AND Password = @Password";
+                db.QueryFirstOrDefault(loginQuery, account);
+            }
+            return RedirectToAction("Welcome", "Home");
+        }
+
+        /*public JsonResult CheckLogin(Account account)
+        {
+            using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString))
+            {
+                string loginQuery = @"SELECT * FROM Account WHERE UserId = @UserId AND Password = @Password";
+                var dataItem = db.QuerySingleOrDefault(loginQuery, account);
+                bool isLogged = true;
                 if (dataItem != null)
                 {
-                    FormsAuthentication.SetAuthCookie(dataItem.UserId, true);
+                    FormsAuthentication.SetAuthCookie(account.UserId, true);
                     var mdl = System.Web.HttpContext.Current.User.Identity.Name;
                     isLogged = true;
                 }
@@ -154,13 +176,21 @@ namespace RegistrationAndLogin7.Controllers
         // 로그아웃
         public ActionResult Logout()
         {
-            /*Session.Clear();
-            Session.Abandon();
-            return RedirectToAction("Index", "Home");*/
-            HttpContext.Session.Remove("UserId");
-            HttpContext.Session.Remove("role");
+            HttpContext.Session.Clear();
             return RedirectToAction("Login", "Account");
         }
+        /*[HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Logout()
+        {
+            AuthenticationManager.Logout(DefaultAuthenticationTypes.ApplicationCookie);
+            return RedirectToAction("Index", "Home");
+        }*/
+        /*public ActionResult Logout()
+        {
+            HttpContext.Session.Remove("UserId");
+            return RedirectToAction("Login");
+        }*/
 
         // 회원삭제
         public void Delete(int Id)

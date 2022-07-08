@@ -1,13 +1,41 @@
-﻿@model RegistrationAndLogin7.Models.Account
-<html>
+﻿<html>
 <head>
     <h2>로그인</h2>
     <script src="~/Scripts/jquery-3.6.0.min.js"></script>
     <hr />
 
     <script>
+
+        function LoginValidation() {
+
+            var account = {};
+            account.UserId = $("#UserId").val();
+            account.Password = $("#Password").val();
+
+            $.ajax({
+                //contentType: "application/json",
+                //dataType: "json",  // 서버에서 보내줄 데이터의 타입
+                type: "POST",  // HTTP 요청 방식(GET, POST)
+                url: "/Account/Login", // 클라이언트가 요청을 보낼 서버의 URL 주소
+                data: { account }, // HTTP 요청과 함께 서버로 보낼 데이터. Controller에서 받아오는 매개변수명이랑 같아야 한다.
+                success: function (response) {
+                    console.log(response);
+                    if (response == true) {
+                        alert("환영합니다.")
+                        window.location.href = "/Home/Index";
+                    } else {
+                        alert("아이디와 비밀번호를 다시 한번 확인해주세요.")
+                        window.location.href = "/Account/Login";
+                    }
+                },
+                error: function () {
+                    alert("Error!!!!!!!!!");
+                }
+            });
+        }
+
         $(document).ready(function () {
-            $("#LoginForm").submit(function () {
+            $("#btnLogin").on("click", function () {
 
                 // "아이디" 공백 확인
                 if ($("#UserId").val() == "") {
@@ -22,61 +50,41 @@
                     return false;
                 }
 
-                @*var data = {
-                    "UserId": $("#UserId").val(),
-                    "Password": $("#Password").val(),
-                    "RememberMe": $("#RememberMe").prop("checked")
-                };
-                $.ajax({
-                    url: "/Account/validateuser",
-                    type: "POST",
-                    data: JSON.stringify(data),
-                    dataType: "json",
-                    contentType: "application/json",
-                    success: function (status) {
-                        $("#message").html(status.Message);
-                        if (status.Success) {
-                            alert("환영합니다.")
-                            window.location.href = status.TargetURL;
-                        }
-                        else if (response == 0) {
-                            alert("아이디 또는 비밀번호를 확인해주세요.");
-                        }
-                    },
-                    error: function () {
-                        4("#message").html("회원인증 에러");
-                        alert("로그인에 실패하였습니다. 아이디와 비밀번호를 확인해주세요.")
-                    }
-                });*@
+                var account = {};
+                account.UserId = $("#UserId").val();
+                account.Password = $("#Password").val();
+                @*var UserId = $("#UserId").val();
+                var Password = $("#Password").val();*@
 
-                var data = JSON.stringify({
-                    "UserId": $("#UserId").val(),
-                    "Password": $("#Password").val()
-                });
-                return $.ajax({
+                $.ajax({
                     contentType: "application/json",
-                    dataType: "json",
-                    type: "POST",
-                    url: "/Account/CheckLogin",
-                    data: data,
-                    success: function (result) {
-                        if (result == true) {
-                            window.location.href = "/Home/Index";
+                    dataType: "json",  // 서버에서 보내줄 데이터의 타입
+                    type: "POST",  // HTTP 요청 방식(GET, POST)
+                    url: "/Account/Login", // 클라이언트가 요청을 보낼 서버의 URL 주소
+                    data: { account }, // HTTP 요청과 함께 서버로 보낼 데이터
+                    //data: { UserId: UserId, Password: Password },
+                    success: function (response) {
+                        if (response == true) {
+                            alert("환영합니다.");
+                            window.location.href = "/Home/Welcome";
                         } else {
+                            alert("아이디와 비밀번호를 다시 한번 확인해주세요.");
                             window.location.href = "/Account/Login";
                         }
                     },
                     error: function () {
-                        alert("Error")
+                        alert("Error!!!!!!!!!");
                     }
                 });
             });
         });
+
+
     </script>
 
 </head>
 <body>
-    <form class="form-horizontal" id="LoginForm" method="post">
+    @*<form class="form-horizontal" id="LoginForm" method="post">*@
 
         <div class="form-group">
             <label>아이디</label>
@@ -95,6 +103,6 @@
             <a class="btn btn-default" href="javascript:window.history.back();">취소</a>
         </div>
 
-    </form>
+    @*</form>*@
 </body>
 </html>
