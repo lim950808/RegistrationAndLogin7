@@ -1,5 +1,5 @@
 # RegistrationAndLogin7
-Register and Login in ASP.NET MVC with Dapper
+Register and Login in ASP.NET MVC with Dapper, jQuery, and Ajax
 
 <hr>
 <pre>
